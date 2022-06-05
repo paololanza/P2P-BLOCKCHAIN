@@ -12,32 +12,36 @@ contract TRY{
         uint powerball;
     }
 
-    uint DEBUG = 1;
+    uint constant K = 32; 
+    uint blockClosed; //last block in which the lottery is open
     uint M; //block duration (given by parameter in constructor)
-    uint K = 32;
-    uint blockClosed; 
     address[] users; //user list
-    Ticket[] public tickets; //user's tickets
-    bool public activeRound; //true if a round is active, false otherwise
+    Ticket[] tickets; //user's tickets
+    bool activeRound; //true if a round is active, false otherwise
     address lottery_manager; //lottery manager address
-    uint ticket_price = 10000000000000000; //1 eth
+    uint ticket_price = 1000000000000000000; //1 eth
     NFTManager NFT;
-    mapping(uint => uint) notAssignedNFT; //list of NFTs id that have not yet assigned
-    mapping(uint => address) NFTMap; //NFT associated to user
 
+    event StartRound();
+    event TicketBought(address buyer, uint[5] number, uint powerball);
+    event Draw(uint[6] numbers);
+    event TicketWinner(address buyer, uint class);
+    event EndRound();
+    event endLottery();
 
-    constructor(uint _M) public{
+    constructor(uint _M){
         activeRound = true;
         lottery_manager = msg.sender;
         M = _M;
-        blockClosed = block.number + M;
+        blockClosed = block.number + M; 
         NFT =  new NFTManager();
-        //mapMatchClass(matchClass);
 
         for(uint i = 0; i < 8; i++)
         {
-            notAssignedNFT[i] = mint(i);
+            mint(i);
         }
+
+        emit StartRound();
     }
 
     function startNewRound() 
@@ -45,12 +49,16 @@ contract TRY{
     {
         require(lottery_manager == msg.sender, "You're not the lottery manager");
         require(activeRound == false, "Round already started!");
-        activeRound == true;
+
+        //reset the new closed block
         blockClosed = block.number + M;
+
+        activeRound = true;
+        emit StartRound();
     }
 
     function buy(uint[5] memory _numbers, uint _powerball) 
-        public 
+        public
         payable
     {
 
@@ -62,49 +70,58 @@ contract TRY{
         uint money = msg.value;
         require(money >= ticket_price, "Value too small");
 
-        //check if the numbers are ok
+        //check if the numbers are correct
         require(_numbers.length == 5, "Insert 5 number");
         require(_powerball >= 1 && _powerball <= 26, "Insert a correct value for powerball");
         for(uint i = 0; i < _numbers.length; i++)
             require(_numbers[i] >= 1 && _numbers[i] <= 69, "Insert a correct value for numbers");
 
-        //create an istance of ticket type
+        //create an istance of ticket
         Ticket memory ticket = Ticket({buyer : msg.sender, numbers : _numbers, powerball : _powerball});
         tickets.push(ticket);
 
         //give the change to buyer
         if(money > ticket_price)
             payable(msg.sender).transfer(money - ticket_price);
+
+        emit TicketBought(msg.sender, _numbers, _powerball);
     }
 
-    function drawNumbers() 
-    public
-    returns(uint256[6] memory)
+    function drawNumbers()
+        internal
+        returns(uint256[6] memory)
     {
-        if(DEBUG == 1) 
-            return [uint256(1),uint256(2),uint256(3),uint256(4),uint256(5),uint256(6)];
+        require(lottery_manager == msg.sender, "You're not the lottery manager");
+        require(blockClosed <= block.number, "Lottery not yet closed");
 
         uint256[6] memory expandedValues;
         uint blockNumber = block.number + K;
-        require(lottery_manager == msg.sender, "You're not the lottery manager");
+        uint previous = 0;
 
         for (uint256 i = 0; i < 6; i++) 
         {   
             if (i != 5)
-                expandedValues[i] = (uint256(keccak256(abi.encode(blockNumber, i + 1))) % 69) + 1;
+                expandedValues[i] = (uint256(keccak256(abi.encode(blockNumber, previous))) % 69) + 1;
             else
-                expandedValues[i] = (uint256(keccak256(abi.encode(blockNumber, i + 1))) % 29) + 1;
+                expandedValues[i] = (uint256(keccak256(abi.encode(blockNumber, previous))) % 29) + 1;
 
-            //TODO: aggiungere controllo elemento già presente
+            for(uint j = 0; j < i; j++)
+                if (expandedValues[j] == expandedValues[i])
+                    i--;
+
+            previous = expandedValues[i];
         }
+
+        emit Draw(expandedValues);
+
         return expandedValues;
     }
 
-    function givePrizes() 
-        public
-        returns(uint)
+    function givePrizes()
+        internal
     {
         require(lottery_manager == msg.sender, "You're not the lottery manager");
+        require(blockClosed <= block.number, "Lottery not yet closed");
         
         uint256[6] memory drawNumber = drawNumbers();
 
@@ -114,7 +131,7 @@ contract TRY{
             uint powerball = 0;
             if(tickets[t].powerball == drawNumber[5])
                 powerball = 1;
-            for(uint i = 0; i < 6; i++)
+            for(uint i = 0; i < 5; i++)
                 for(uint j = 0; j < 5; j++)
                     if(tickets[t].numbers[i] == drawNumber[j])
                         numberCount++;
@@ -125,66 +142,88 @@ contract TRY{
             if(class != 0)
             {
                 //assign the NFT
-                NFT.assignNFT(tickets[t].buyer, notAssignedNFT[class]);
+                NFT.assignNFT(tickets[t].buyer, class);
 
                 //mint new NFT of the same class
-                notAssignedNFT[class] = mint(class);
+                mint(class);
+
+                //emit the WinnerTicket event
+                emit TicketWinner(tickets[t].buyer, class);
             }
         }
     }
 
     function mint(uint class) 
-        public
-        returns(uint256)
+        internal
     {
         require(lottery_manager == msg.sender, "You're not the lottery manager");
 
-        uint256 NFTid = NFT.mintNFT(class);
-        return NFTid;
+        NFT.mintNFT(class);
     }
 
-    function closeLottery() 
-        public 
+    function closeLottery()
+        public
         payable
     {
-
         require(lottery_manager == msg.sender, "You're not the lottery manager");
-        require(activeRound == true, "Round already closed!");
 
-        if(blockClosed <= block.number)
-            //give back the ticket_price 
+        if(blockClosed > block.number)
+            //refund the ticket_price 
             for(uint i = 0; i < tickets.length; i++)
                 payable(tickets[uint(i)].buyer).transfer(ticket_price);
-        else 
-            payable(lottery_manager).transfer(tickets.length * ticket_price);
 
-        activeRound = false;
+        emit endLottery();
 
-        //TODO: resettare le strutture
+        //destruct the contract
+        selfdestruct(payable(lottery_manager));
     }
 
-    function getClass(uint number, uint powerball) public returns(uint) {
+    function closeRound()
+        public
+        payable
+    {
+        require(lottery_manager == msg.sender, "You're not the lottery manager");
+        require(activeRound == true, "Round already closed!");
+        require(blockClosed < block.number, "Round not yet finished!");
+
+        //give prizes to users
+        givePrizes();
+
+        //give the current contract balance to the lottery manager
+        payable(lottery_manager).transfer(address(this).balance);
+
+        //delete all the tickets bought in this round
+        delete tickets;
+
+        activeRound = false;
+        emit EndRound();
+    }
+
+    function getClass(uint number, uint powerball) 
+        internal
+        returns(uint) 
+    {
         if(number == 0 && powerball == 1)
-            return 8;  
+            return uint(8);
         else  
             if(number == 1)
-                return 8 - number + powerball;
+                return uint(8 - (number + powerball));
             else
                 if(number == 2)
-                    return 8 - number + powerball;
+                    return uint(8 - (number + powerball));
                 else
                     if(number == 3)
-                        return 8 - number + powerball;
+                        return uint(8 - (number + powerball));
                     else
                         if(number == 4)
-                            return 8 - number + powerball;
+                            return uint(8 - (number + powerball));
                         else
                             if(number == 5 && powerball == 0)
-                                return 2;
+                                return uint(2);
                             else
                                 if(number == 5 && powerball == 1)
-                                    return 1;
+                                    return uint(1);
                                 else
-                                    return 0;  
+                                    return uint(0);
     }
 }
