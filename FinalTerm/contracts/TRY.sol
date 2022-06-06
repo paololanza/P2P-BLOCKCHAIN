@@ -36,7 +36,7 @@ contract TRY{
         blockClosed = block.number + M; 
         NFT =  new NFTManager();
 
-        for(uint i = 0; i < 8; i++)
+        for(uint i = 1; i < 8; i++)
         {
             mint(i);
         }
