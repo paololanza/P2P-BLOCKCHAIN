@@ -27,7 +27,7 @@ contract TRY{
     event Draw(uint[6] numbers);
     event TicketWinner(address buyer, uint class);
     event EndRound();
-    event endLottery();
+    event EndLottery();
 
     constructor(uint _M){
         activeRound = true;
@@ -172,7 +172,7 @@ contract TRY{
             for(uint i = 0; i < tickets.length; i++)
                 payable(tickets[uint(i)].buyer).transfer(ticket_price);
 
-        emit endLottery();
+        emit EndLottery();
 
         //destruct the contract
         selfdestruct(payable(lottery_manager));

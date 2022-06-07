@@ -1,18 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-contract DAppContract {
+import "./TRY.sol";
+
+contract DAppContract is TRY {
 
     uint public value;
-    event click();
 
-    constructor() {
-
-        value = 42;
+    constructor() TRY(uint(100)) {
+        value = 1;
     }
 
-    function pressClick() public {
-        
-        emit click();
+    function startRound() public {
+        startNewRound();
+    }
+
+    function endRound() public {
+        closeRound();
+    }
+
+    function endLottery() public {
+        closeLottery();
+    }
+
+    function buyTicket() public {
+        //buy([uint(1),2,3,4,5], 6);
+        emit StartRound();
     }
 }
