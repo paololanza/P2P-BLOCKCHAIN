@@ -1,5 +1,5 @@
 const Migrations = artifacts.require("Migrations");
-const Contract = artifacts.require("DAppContract");
+const Contract = artifacts.require("TRY");
 
 module.exports = function (deployer) {
   deployer.deploy(Migrations);

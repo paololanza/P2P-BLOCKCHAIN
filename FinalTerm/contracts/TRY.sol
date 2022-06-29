@@ -17,8 +17,10 @@ contract TRY{
     uint M; //block duration (given by parameter in constructor)
     address[] users; //user list
     Ticket[] tickets; //user's tickets
-    bool activeRound; //true if a round is active, false otherwise
-    address lottery_manager; //lottery manager address
+    bool public activeLottery;
+    bool public activeRound; //true if a round is active, false otherwise
+    bool public deactivateLottery;
+    address public lottery_manager; //lottery manager address
     uint ticket_price = 1000000000000000000; //1 eth
     NFTManager NFT;
 
@@ -29,7 +31,12 @@ contract TRY{
     event EndRound();
     event EndLottery();
 
-    constructor(uint _M){
+    constructor(){
+        activeLottery = false;
+        deactivateLottery = false;
+    }
+
+    function startLottery(uint _M) public{
         activeRound = true;
         lottery_manager = msg.sender;
         M = _M;
@@ -40,6 +47,8 @@ contract TRY{
         {
             mint(i);
         }
+
+        activeLottery = true;
 
         emit StartRound();
     }
@@ -173,6 +182,8 @@ contract TRY{
                 payable(tickets[uint(i)].buyer).transfer(ticket_price);
 
         emit EndLottery();
+
+        deactivateLottery = true;
 
         //destruct the contract
         selfdestruct(payable(lottery_manager));

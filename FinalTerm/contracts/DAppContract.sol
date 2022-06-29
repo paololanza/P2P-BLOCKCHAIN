@@ -3,28 +3,33 @@ pragma solidity 0.8.13;
 
 import "./TRY.sol";
 
-contract DAppContract is TRY {
+contract DAppContract{
 
-    uint public value;
+    address public lotteryManager;
+    TRY contractTRY;
 
-    constructor() TRY(uint(100)) {
-        value = 1;
+    constructor(){
+    }
+
+    function startLottery() public{
+        contractTRY = new TRY();
+        lotteryManager = msg.sender;
     }
 
     function startRound() public {
-        startNewRound();
+        //contracts[id].startNewRound();
     }
 
     function endRound() public {
-        closeRound();
+        //closeRound();
     }
 
     function endLottery() public {
-        closeLottery();
+        //closeLottery();
     }
 
     function buyTicket() public {
         //buy([uint(1),2,3,4,5], 6);
-        emit StartRound();
+        //emit StartRound();
     }
 }
