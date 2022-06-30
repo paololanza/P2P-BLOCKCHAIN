@@ -41,21 +41,25 @@
                 <h5 class="text-left" id="lotteryManager"></h5>
                 <h5 class ="text-left" id="activeRound"></h5>
                 <h5 class ="text-left" id="activeLottery"></h5>
+                <h5 class="text-left" id="actualblock"></h5>
+                <h5 class= "text-left" id="closedBlock"></h5>
             </div>
             <div class="col-9">
                 <h1 class="text-center">Application panel</h1>
+                <form>
                 <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text">NUMBERS:</span>
                     </div>
-                    <input type="text" aria-label="#1" class="form-control">
-                    <input type="text" aria-label="#2" class="form-control">
-                    <input type="text" aria-label="#3" class="form-control">
-                    <input type="text" aria-label="#4" class="form-control">
-                    <input type="text" aria-label="#5" class="form-control">
-                    <input type="text" aria-label="PB" class="form-control">
-                  </div>
+                    <input type="text" aria-label="#1" class="form-control" name="array" required>
+                    <input type="text" aria-label="#2" class="form-control" name="array" required>
+                    <input type="text" aria-label="#3" class="form-control" name="array" required>
+                    <input type="text" aria-label="#4" class="form-control" name="array" required>
+                    <input type="text" aria-label="#5" class="form-control" name="array" required>
+                    <input type="text" aria-label="PB" class="form-control" name="array" required>
+                </div>
                 <button class="btn btn-primary" onclick="App.buyTicket()">Buy Ticket</button>
+              </form>
             </div>
         </div>
     </div>

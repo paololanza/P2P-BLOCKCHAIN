@@ -13,7 +13,7 @@ contract TRY{
     }
 
     uint constant K = 32; 
-    uint blockClosed; //last block in which the lottery is open
+    uint public blockClosed; //last block in which the lottery is open
     uint M; //block duration (given by parameter in constructor)
     address[] users; //user list
     Ticket[] tickets; //user's tickets
