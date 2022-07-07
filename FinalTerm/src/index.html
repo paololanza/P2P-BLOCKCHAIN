@@ -10,7 +10,7 @@
 
     <title>TRY</title>
 </head>
-<body onload="indexing()">
+<body>
     <!--Header-->
     <header>
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
@@ -37,22 +37,16 @@
         <div class="row">
           <div class="col-8">
             <h1 class="display-4 fw-bold lh-1 mb-3">Welcome to TRY Lottery!</h1>
-            <p class="col-lg-9 fs-4">Create your lottery or joining in an existing lottery</p>
+            <p class="col-lg-9 fs-4">TRY to win a fantastic Kitty NFT</p>
           </div>
           <div class="col-4 p-4 p-md-5 border rounded-3 bg-light">
-              <button class="w-100 btn btn-lg btn-primary" type="submit" onclick="App.startLottery()">Create new Lottery!</button>
-            <!--<script>
-                var form;
-                form = document.getElementById('next_index');
-                if(true)
-                {
-                    form.action = './indexUser.html';
-                }
-                else
-                {
-                    form.action = "./indexManager.html";
-                }
-            </script>-->
+            <h4>Become the Lottery Manager!</h4>
+            <br>
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Insert the Lottery Duration:</label>
+              <input type="text" class="form-control" id="lotteryBlock">
+            </div>
+              <button id="startLottery" class="w-100 btn btn-lg btn-primary" type="submit" onclick="App.startLottery()">Create new Lottery!</button>
           </div>
         </div>
     </div>

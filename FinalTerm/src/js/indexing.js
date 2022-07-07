@@ -1,18 +1,25 @@
-function indexing()
+var loc = "";
+if(localStorage.getItem("activeLottery") == "false")
 {
-    if(localStorage.getItem("lotteryManager") == localStorage.getItem("addressID") && 
-            localStorage.getItem("activeLottery") == "true")
-        {
-            self.location = "indexManager.html";
-        }
-    if(localStorage.getItem("lotteryManager") != localStorage.getItem("addressID") &&
-                localStorage.getItem("activeLottery") == "true")
-        {
-            self.location = "indexUser.html";
-        }
-    if(localStorage.getItem("deactivateLottery") == "true")
+    loc = "/index.html";
+}
+else 
+{
+    if(localStorage.getItem("lotteryManager") == localStorage.getItem("addressID"))
     {
-        self.location = "indexClosed.html";
+        loc = "/indexManager.html";
     }
+    if(localStorage.getItem("lotteryManager") != localStorage.getItem("addressID"))
+    {
+        loc = "/indexUser.html";
+    }
+}
+if(localStorage.getItem("deactivateLottery") == "true")
+{
+    loc = "/indexClosed.html";
+}
 
+if(loc != self.location.pathname.toString())
+{
+    self.location = loc;
 }

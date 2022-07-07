@@ -19,11 +19,15 @@ contract TRY{
     Ticket[] tickets; //user's tickets
     bool public activeLottery;
     bool public activeRound; //true if a round is active, false otherwise
-    bool public deactivateLottery;
+    bool public deactivateLottery; 
     address public lottery_manager; //lottery manager address
+    uint[6] public lastDraw;
+    mapping(address => uint) public winnerMessage;
+    address[] winnerUser;
     uint ticket_price = 1000000000000000000; //1 eth
     NFTManager NFT;
 
+    event StartLottery();
     event StartRound();
     event TicketBought(address buyer, uint[5] number, uint powerball);
     event Draw(uint[6] numbers);
@@ -34,10 +38,10 @@ contract TRY{
     constructor(){
         activeLottery = false;
         deactivateLottery = false;
+        activeRound = false;
     }
 
     function startLottery(uint _M) public{
-        activeRound = true;
         lottery_manager = msg.sender;
         M = _M;
         blockClosed = block.number + M; 
@@ -49,8 +53,9 @@ contract TRY{
         }
 
         activeLottery = true;
+        activeRound = true;
 
-        emit StartRound();
+        emit StartLottery();
     }
 
     function startNewRound() 
@@ -73,7 +78,7 @@ contract TRY{
 
         //check if the round is activeRound
         require(activeRound == true, "Lottery closed");
-        require(blockClosed > block.number, "Lottery closed");
+        require(blockClosed >= block.number, "Lottery closed");
         
         //check if the value is enough to buy a ticket
         uint money = msg.value;
@@ -122,6 +127,7 @@ contract TRY{
         }
 
         emit Draw(expandedValues);
+        lastDraw = expandedValues;
 
         return expandedValues;
     }
@@ -130,7 +136,7 @@ contract TRY{
         internal
     {
         require(lottery_manager == msg.sender, "You're not the lottery manager");
-        require(blockClosed <= block.number, "Lottery not yet closed");
+        //require(blockClosed <= block.number, "Lottery not yet closed");
         
         uint256[6] memory drawNumber = drawNumbers();
 
@@ -158,6 +164,10 @@ contract TRY{
 
                 //emit the WinnerTicket event
                 emit TicketWinner(tickets[t].buyer, class);
+
+                //add the winner message
+                //winnerMessage[tickets[t].buyer] = class;
+                //winnerUser.push(tickets[t].buyer);
             }
         }
     }
@@ -203,8 +213,11 @@ contract TRY{
         //give the current contract balance to the lottery manager
         payable(lottery_manager).transfer(address(this).balance);
 
-        //delete all the tickets bought in this round
+        //delete all the data structure
         delete tickets;
+        //for(uint i = 0; i < winnerUser.length; i++)
+            //delete winnerMessage[winnerUser[i]];
+        //delete winnerUser;
 
         activeRound = false;
         emit EndRound();
