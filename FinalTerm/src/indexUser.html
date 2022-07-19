@@ -34,9 +34,9 @@
     <br>
     <br>
 
-    <div class="container-fluid" >
+    <div class="container" >
         <div class="row">
-            <div class="col-3 bg-primary p-4 p-md-5 border rounded-3 bg-light text-truncate">
+            <div class="col-4 bg-primary p-4 p-md-5 border rounded-3 bg-light text-truncate">
                 <h4 class="text-center">Contract Information</h4>
                 <h5 class="text-left" id="lotteryManager"></h5>
                 <h5 class ="text-left" id="activeRound"></h5>
@@ -44,8 +44,11 @@
                 <h5 class="text-left" id="actualblock"></h5>
                 <h5 class= "text-left" id="closedblock"></h5>
             </div>
-            <div class="col-9">
-                <h1 class="text-center">Application panel</h1>
+            <div class="col-5 bg-primary p-4 p-md-5 border rounded-3 bg-light">
+                <h2 class="text-center">Buy your Ticket!</h2>
+                <br>
+                <br>
+                <br>
                 <form>
                 <div class="input-group">
                     <div class="input-group-prepend">
@@ -59,7 +62,19 @@
                     <input type="text" aria-label="PB" class="form-control" name="array" required>
                 </div>
               </form>
+              <br>
               <button id="buy" class="btn btn-primary" onclick="App.buyTicket()">Buy Ticket</button>
+            </div>
+            <div class="col-3 bg-primary p-4 p-md-5 border rounded-3 bg-light">
+              <h3>
+                Last Winning Numbers:
+              </h3>
+              <h5 id="w0"></h5>
+              <h5 id="w1"></h5>
+              <h5 id="w2"></h5>
+              <h5 id="w3"></h5>
+              <h5 id="w4"></h5>
+              <h5 id="w5"></h5>
             </div>
         </div>
     </div>

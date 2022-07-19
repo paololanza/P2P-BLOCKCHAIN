@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <title>DApp</title>
+    <title>TRY</title>
 </head>
 <body>
 
@@ -35,7 +35,7 @@
 
     <div class="container" >
         <div class="row">
-            <div class="col-3 bg-primary p-4 p-md-5 border rounded-3 bg-light text-truncate">
+            <div class="col-4 bg-primary p-4 p-md-5 border rounded-3 bg-light text-truncate">
                 <h4 class="text-center">Contract Information</h4>
                 <h5 class="text-left" id="lotteryManager"></h5>
                 <h5 class ="text-left" id="activeRound"></h5>
@@ -43,26 +43,26 @@
                 <h5 class="text-left" id="actualblock"></h5>
                 <h5 class= "text-left" id="closedblock"></h5>
             </div>
-            <div class="col-7">
-              <h1>
-                Last Winning Numbers:
-              </h1>
-              <h3 id="w0"></h3>
-              <h3 id="w1"></h3>
-              <h3 id="w2"></h3>
-              <h3 id="w3"></h3>
-              <h3 id="w4"></h3>
-              <h3 id="w5"></h3>
+            <div class="col-lg-5 bg-primary p-4 p-md-5 border rounded-3 bg-light text-truncate">
+                <h1 class="text-center">Lottery Manager</h1>
+                <br>
+                <br>
+                <br>
+                <button id="startRound" class="btn btn-primary" onclick="App.startRound()">Start Round</button>
+                <button id="endRound" class="btn btn-primary" onclick="App.endRound()">End Round</button>
+                <button id="endLottery" class="btn btn-primary" onclick="App.endLottery()">Close Lottery</button>
+
             </div>
-            <div class="col-2">
-                <div id="mainUI" class="col-lg-9">
-                    <h1 class="text-center">Lottery Manager</h1>
-                    <h3 id="valueId"></h3>
-                    <button id="startRound" class="btn btn-primary" onclick="App.startRound()">startRound</button>
-                    <button id="endRound" class="btn btn-primary" onclick="App.endRound()">endRound</button>
-                    <button id="endLottery" class="btn btn-primary" onclick="App.endLottery()">closeLottery</button>
-                    <h3 id="eventId"></h2>
-                </div>
+            <div class="col-3 bg-primary p-4 p-md-5 border rounded-3 bg-light">
+              <h3>
+                Last Winning Numbers:
+              </h3>
+              <h5 id="w0"></h5>
+              <h5 id="w1"></h5>
+              <h5 id="w2"></h5>
+              <h5 id="w3"></h5>
+              <h5 id="w4"></h5>
+              <h5 id="w5"></h5>
             </div>
         </div>
     </div>

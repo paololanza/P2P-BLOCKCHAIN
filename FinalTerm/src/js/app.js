@@ -13,7 +13,6 @@ App = {
     /* initialize Web3 */
     initWeb3: function() {
         console.log("Entered")
-        // console.log(web3);
         
         if(typeof web3 != 'undefined') {
             App.web3Provider = window.ethereum; 
@@ -58,6 +57,7 @@ App = {
         });
     },
 
+    //shows an alert on the user interface
     showAlert: function (message) {
         $("#message").html(message);
         $("#alert").fadeTo(3000, 500).slideUp(500, function() {
@@ -65,27 +65,42 @@ App = {
         });
     },
 
-    // Write an event listener
+    //event listener that catch the events emitted from the contract
     listenForEvents: function() {
 
         App.contracts["Contract"].deployed().then(async (instance) => {
 
-                instance.StartLottery().on('data', function (event) {
-                    self.location = "./indexManager.html";
+                instance.StartLottery().on('data', function (event) {  
                     console.log(event);
-                    App.notification("Lottery Started!");
+
+                    //send notification to all users
+                    if(App.account != localStorage.getItem("lotteryManager"))
+                    {
+                        App.notification("Lottery Started!");
+                        self.location = "./indexUser.html";
+                    }
+                    else
+                    {
+                        self.location = "./indexManager.html";
+                    }
                 })
                 
                 instance.StartRound().on('data', function (event) {
-                    self.location = "./indexManager.html";
-                    App.notification("New Lottery Round Started!");
+
+                    //send a notification to all users
+                    if(App.account != localStorage.getItem("lotteryManager"))
+                        App.notification("New Lottery Round Started!");
+
                     console.log(event);
                 })
 
                 instance.TicketBought().on('data', function (event) {
                     var address = event.returnValues['0'];
-                    if(App.account == address)
+
+                    //send a feedback only to user that bought the ticket
+                    if(App.account == address.toLowerCase())
                         App.showAlert(address + ": ticket bought correctly!");       
+
                     console.log(event);
                 });
 
@@ -98,25 +113,23 @@ App = {
                     var classe = event.returnValues['1'];
 
                     //check if the user has won the lottery
-                    if(App.account == address)
-                        App.notification("Congratulation " + address + ", you have won a class " + classe + " NFT!");
-
-                    //testing
-                    if(App.account == localStorage.getItem("lotteryManager"))
-                        App.notification("Congratulation " + address + ", you have won a class " + classe + " NFT!");
+                    if(App.account == address.toLowerCase())
+                        App.notification("Congratulation " + address + ", you have won a class " + classe + " NFT!"); 
 
                     console.log(event);
                 });
 
                 instance.EndRound().on('data', function (event) {
+                    //show an alert to all users
                     App.showAlert("Lottery round ended");
                     console.log(event);
                 });
 
                 instance.EndLottery().on('data', function (event) {
+                    //send a notification to all users
                     self.location = "./indexClosed.html";
                     localStorage.setItem("deactivateLottery", "true");
-                    App.showAlert("Lottery ended!")
+                    App.notification("Lottery ended!");
                     console.log(event);
                 });
         });
@@ -128,6 +141,7 @@ App = {
 
         App.contracts["Contract"].deployed().then(async(instance) =>{
 
+            //show on the interface who is the lottery manager
             const v = await instance.lottery_manager(); 
             $("#lotteryManager").html("Lottery Manager:" + v);
             localStorage.setItem("lotteryManager", v.toLowerCase());
@@ -135,6 +149,7 @@ App = {
 
         App.contracts["Contract"].deployed().then(async(instance) =>{
 
+            //show on the user interface the round status
             const v = await instance.activeRound();
             localStorage.setItem("activeRound", v);
             var s;
@@ -147,6 +162,7 @@ App = {
 
         App.contracts["Contract"].deployed().then(async(instance) =>{
 
+            //show on the user interface the lottery status
             const v = await instance.activeLottery();
             localStorage.setItem("activeLottery", v);
             var s;
@@ -165,12 +181,14 @@ App = {
         });
 
         App.contracts["Contract"].deployed().then(async(instance) =>{
+            //show on the user interface the closure block
             const v = await instance.blockClosed();
             $("#closedblock").html("Closed Block: " + v.toNumber());
             localStorage.setItem("closedBlock", v);
         });
 
         App.contracts["Contract"].deployed().then(async(instance) =>{
+            //show the last drawn numbers
             for(i = 0; i < 6; i++)
             {
                 const v = await instance.lastDraw(i);
@@ -181,7 +199,7 @@ App = {
 
     },
 
-    // call function from a smart contract
+    ////function that call the startLottery transaction in TRY.sol
     startLottery: function() {
 
         if(localStorage.getItem("activeLottery") == "true")
@@ -197,6 +215,7 @@ App = {
         
     },
 
+    //function that call the startNewRound transaction in TRY.sol
     startRound: function() {
         if(localStorage.getItem("activeRound") == "true")
         {
@@ -210,6 +229,7 @@ App = {
         });
     },
 
+    //function that call the closeRound transaction in TRY.sol
     endRound: function() {
         
         if(parseInt(localStorage.getItem("closedBlock")) > parseInt(localStorage.getItem("actualBlock")))
@@ -229,6 +249,7 @@ App = {
         });
     },
 
+    //function that call the closeLottery transaction in TRY.sol
     endLottery: function() {
 
         App.contracts["Contract"].deployed().then(async(instance) =>{
@@ -236,6 +257,7 @@ App = {
         });
     },
 
+    //function that call the buy transaction in TRY.sol
     buyTicket: function() {
         if(parseInt(localStorage.getItem("closedBlock")) <= parseInt(localStorage.getItem("actualBlock")))
         {
@@ -275,11 +297,13 @@ App = {
     },
 
     showNotification: function(_body) {
+        //show the notification
         const notification = new Notification("TRY Lottery!", {
             body:_body
         });
     },
 
+    //function that manage the notification permission
     notification: function(body){
         console.log(Notification.permission);
         if (Notification.permission === "granted")
@@ -296,6 +320,7 @@ App = {
         }
     },
 
+    //function that takes the actual block number
     actualBlock: function(){
         web3.eth.getBlockNumber().then(block => {
             $("#actualblock").html("Actual Block: " + block);
@@ -305,7 +330,7 @@ App = {
 
 }
 
-// Call init whenever the window loads
+//call init whenever the window loads
 $(function() {
     $(window).on('load', function () {
         App.init();

@@ -1,5 +1,6 @@
 var loc = "";
-if(localStorage.getItem("activeLottery") == "false")
+if(localStorage.getItem("activeLottery") == "false" && 
+   localStorage.getItem("lotteryManager") == localStorage.getItem("addressID"))
 {
     loc = "/index.html";
 }

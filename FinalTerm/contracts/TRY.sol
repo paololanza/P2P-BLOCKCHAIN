@@ -17,13 +17,11 @@ contract TRY{
     uint M; //block duration (given by parameter in constructor)
     address[] users; //user list
     Ticket[] tickets; //user's tickets
-    bool public activeLottery;
+    bool public activeLottery; //false if the lottery is not yer started, true otherwise
     bool public activeRound; //true if a round is active, false otherwise
-    bool public deactivateLottery; 
+    bool public deactivateLottery;
     address public lottery_manager; //lottery manager address
-    uint[6] public lastDraw;
-    mapping(address => uint) public winnerMessage;
-    address[] winnerUser;
+    uint[6] public lastDraw; //contains the last draw numbers
     uint ticket_price = 1000000000000000000; //1 eth
     NFTManager NFT;
 
@@ -39,10 +37,11 @@ contract TRY{
         activeLottery = false;
         deactivateLottery = false;
         activeRound = false;
+        lottery_manager = msg.sender;
     }
 
     function startLottery(uint _M) public{
-        lottery_manager = msg.sender;
+        require(lottery_manager == msg.sender, "You're not the lottery manager");
         M = _M;
         blockClosed = block.number + M; 
         NFT =  new NFTManager();
@@ -105,9 +104,6 @@ contract TRY{
         internal
         returns(uint256[6] memory)
     {
-        require(lottery_manager == msg.sender, "You're not the lottery manager");
-        require(blockClosed <= block.number, "Lottery not yet closed");
-
         uint256[6] memory expandedValues;
         uint blockNumber = block.number + K;
         uint previous = 0;
@@ -135,8 +131,6 @@ contract TRY{
     function givePrizes()
         internal
     {
-        require(lottery_manager == msg.sender, "You're not the lottery manager");
-        //require(blockClosed <= block.number, "Lottery not yet closed");
         
         uint256[6] memory drawNumber = drawNumbers();
 
@@ -164,10 +158,6 @@ contract TRY{
 
                 //emit the WinnerTicket event
                 emit TicketWinner(tickets[t].buyer, class);
-
-                //add the winner message
-                //winnerMessage[tickets[t].buyer] = class;
-                //winnerUser.push(tickets[t].buyer);
             }
         }
     }
@@ -215,9 +205,6 @@ contract TRY{
 
         //delete all the data structure
         delete tickets;
-        //for(uint i = 0; i < winnerUser.length; i++)
-            //delete winnerMessage[winnerUser[i]];
-        //delete winnerUser;
 
         activeRound = false;
         emit EndRound();
